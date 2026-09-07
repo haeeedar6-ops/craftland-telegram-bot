@@ -18,6 +18,15 @@ def send_welcome(message):
   bot.reply_to(message, "أهلاً بك في بوت أرض الحرف الخاص بفري فاير! 🔥")
 
 
+@bot.message_handler(content_types=["photo"])
+def handle_photo(message):
+  bot.reply_to(
+      message,
+      "📷 وصلتني الصورة يا حيدر! جاري تحليل سكريبت البلوكات ونظام اللعب...",
+  )
+  # يمكنك لاحقاً ربط رابط الصورة المرفوعة مع Flowise إذا كان يدعم الرؤية الحاسوبية
+
+
 @bot.message_handler(func=lambda m: True)
 def handle_ai_message(message):
   url = "https://flowise-production-a361.up.railway.app/api/v1/prediction/79bce751-b39e-48bd-a213-370bd01b966d"
