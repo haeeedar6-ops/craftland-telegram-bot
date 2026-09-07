@@ -2,9 +2,7 @@ import os
 import telebot
 from flask import Flask, request
 
-TOKEN = "8770815242:AAH..."  # ضع التوكن الخاص بك هنا تماماً كما هو
-bot = telebot.TeleBot(TOKEN)
-
+TOKEN = "8770815242:AAHZ5-06ck0ktdx_Yw-sTlda5Bz8Dz6izEM"
 # سيرفر وهمي بسيط لتبقى خدمة Render (Web Service) سعيدة وشغالة
 app = Flask(__name__)
 
