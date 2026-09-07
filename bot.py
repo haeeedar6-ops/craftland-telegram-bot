@@ -1,5 +1,5 @@
 import os
-import threading
+import requests
 import telebot
 from flask import Flask, request
 
@@ -16,16 +16,23 @@ def home():
 
 @bot.message_handler(commands=["start"])
 def send_welcome(message):
-  bot.reply_to(message, "أهلاً بك في بوت أرض الحرف الخاص بفري فاير! ")
+  bot.reply_to(message, "أهلاً بك في بوت أرض الحرف الخاص بفري فاير! 🔥")
 
 
-def run_bot():
-  bot.infinity_polling()
+# دالة استقبال الرسائل وتحويلها إلى Flowise
+@bot.message_handler(func=lambda message: True)
+def handle_ai_message(message):
+  user_message = message.text
 
+  # هذا هو رابط الـ API الصحيح لـ Flowise الذي أخذناه قبل قليل
+  flowise_url = "https://flowise-production-a361.up.railway.app/api/v1/prediction/79bce751-b39e-48bd-a213-370bd01b966d"
 
-if __name__ == "__main__":
-  t = threading.Thread(target=run_bot)
-  t.start()
-
-  port = int(os.environ.get("PORT", 5000))
-  app.run(host="0.0.0.0", port=port)
+  try:
+    response = requests.post(flowise_url, json={"question": user_message})
+    ai_answer = response.json().get(
+        "text", "عذراً، حدث خطأ في معالجة طلبك الذكي."
+    )
+    bot.reply_to(message, ai_answer)
+  except Exception as e:
+    bot.reply_to(
+        me
