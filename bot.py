@@ -1,23 +1,37 @@
+import os
 import telebot
-import requests
+from flask import Flask, request
 
-TOKEN = '8770815242:AAHZ5-06ck0ktdx_Yw-sTlda5Bz8Dz6izEM'
+TOKEN = "8770815242:AAH..."  # ضع التوكن الخاص بك هنا تماماً كما هو
 bot = telebot.TeleBot(TOKEN)
 
-API_URL = "https://flowise-production-a361.up.railway.app/api/v1/prediction/79bce751-b39e-48bd-a213-370bd01b966d"
+# سيرفر وهمي بسيط لتبقى خدمة Render (Web Service) سعيدة وشغالة
+app = Flask(__name__)
 
-@bot.message_handler(func=lambda message: True)
-def handle_message(message):
-    user_message = message.text
-    
-    try:
-        response = requests.post(API_URL, json={"question": user_message})
-        result = response.json()
-        reply_text = result.get("text", "عذراً، لم أتمكن من إيجاد إجابة في الملفات.")
-    except Exception as e:
-        reply_text = "حدث خطأ في الاتصال بنظام الذكاء الاصطناعي."
-        
-    bot.reply_to(message, reply_text)
 
-print("البوت يعمل الآن...")
-bot.infinity_polling()
+@app.route("/")
+def home():
+  return "Bot is running 24/7!"
+
+
+@bot.message_handler(commands=["start"])
+def send_welcome(message):
+  bot.reply_to(message, "أهلاً بك في بوت أرض الحرف الخاص بفري فاير! 🔥")
+
+
+# باقي أوامر البوت الخاصة بك هنا...
+
+# تشغيل السيرفر الوهمي مع البوت
+if __name__ == "__main__":
+  import threading
+
+  # تشغيل البوت بخاصية الـ Polling في الخلفية
+  def run_bot():
+    bot.infinity_polling()
+
+  t = threading.Thread(target=run_bot)
+  t.start()
+
+  # تشغيل سيرفر Flask على المنفذ المطلوب من Render
+  port = int(os.environ.get("PORT", 5000))
+  app.run(host="0.0.0.0", port=port)
