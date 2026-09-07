@@ -20,10 +20,41 @@ def send_welcome(message):
 
 @bot.message_handler(content_types=["photo"])
 def handle_photo(message):
-  bot.reply_to(
-      message,
-      "📷 وصلتني الصورة يا حيدر! جاري تحليل سكريبت البلوكات ونظام اللعب...",
-  )
+  try:
+    bot.reply_to(message, "🔍 جاري تحليل سكريبت البلوكات للصورة يا حيدر...")
+
+    # الحصول على أعلى دقة للصورة المرفوعة
+    photo = message.photo[-1]
+    file_info = bot.get_file(photo.file_id)
+    file_url = f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
+
+    # النص المرافق للصورة أو سؤال افتراضي للتحليل
+    caption = (
+        message.caption
+        if message.caption
+        else "حلل لي هذه الصورة لسكريبت البلوكات واشرح لي كيف يعمل هذا النظام:"
+    )
+
+    # إرسال الصورة والرابط إلى Flowise API
+    url = "https://flowise-production-a361.up.railway.app/api/v1/prediction/79bce751-b39e-48bd-a213-370bd01b966d"
+    payload = {
+        "question": caption,
+        "overrideConfig": {"uploads": [{"data": file_url, "type": "url"}]},
+    }
+
+    res = requests.post(url, json=payload)
+    data = res.json()
+    ans = (
+        data.get("text")
+        if isinstance(data, dict)
+        else "عذراً، لم أتمكن من تحليل الصورة."
+    )
+    bot.reply_to(message, ans if ans else "تم استلام التحليل!")
+
+  except Exception as e:
+    bot.reply_to(
+        message, "حدث خطأ أثناء محاولة جلب أو تحليل الصورة عبر الذكاء الاصطناعي."
+    )
 
 
 @bot.message_handler(func=lambda m: True)
@@ -43,7 +74,6 @@ def handle_ai_message(message):
 
 
 def run_bot():
-  # إزالة أي جلسات معلقة قديمة وإجبار تيليجرام على قبول الاتصال الجديد
   try:
     bot.remove_webhook()
   except:
