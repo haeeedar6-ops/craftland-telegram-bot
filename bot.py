@@ -4,7 +4,7 @@ import telebot
 from flask import Flask
 
 TOKEN = "8770815242:AAFPNZOiXBsQzyE6goZ600UUKa4VI3EhIr4"
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(TOKEN, threaded=False)
 app = Flask(__name__)
 
 
@@ -24,7 +24,6 @@ def handle_photo(message):
       message,
       "📷 وصلتني الصورة يا حيدر! جاري تحليل سكريبت البلوكات ونظام اللعب...",
   )
-  # يمكنك لاحقاً ربط رابط الصورة المرفوعة مع Flowise إذا كان يدعم الرؤية الحاسوبية
 
 
 @bot.message_handler(func=lambda m: True)
@@ -44,7 +43,12 @@ def handle_ai_message(message):
 
 
 def run_bot():
-  bot.infinity_polling()
+  # إزالة أي جلسات معلقة قديمة وإجبار تيليجرام على قبول الاتصال الجديد
+  try:
+    bot.remove_webhook()
+  except:
+    pass
+  bot.infinity_polling(skip_pending=True)
 
 
 if __name__ == "__main__":
